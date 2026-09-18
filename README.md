@@ -153,14 +153,6 @@ ni émulateur (utile en CI ou sur desktop).
 - Vérification que `sqflite` ne fonctionne pas nativement sur desktop, d'où
   le basculement conditionnel vers `sqflite_common_ffi`.
 
-## Captures d'écran
-
-*(à compléter avant la remise finale — captures des écrans Accueil, Liste
-des cultures, Détail d'une culture, Formulaire d'ajout, Conseils saisonniers)*
-
-| Accueil | Cultures | Détail culture |
-|---|---|---|
-| _capture à ajouter_ | _capture à ajouter_ | _capture à ajouter_ |
 
 ## Difficultés rencontrées
 
