@@ -1,102 +1,104 @@
-> **Prérequis** : Flutter ≥ 3.27 (le thème utilise `Color.withValues` et
-> `CardThemeData`, disponibles à partir de cette version). Vérifiez votre
-> version avec `flutter --version` et mettez à jour avec `flutter upgrade`
-> si nécessaire.
-
 # 🌾 AgriSuivi
 
-Application mobile Flutter destinée aux petits exploitants agricoles pour suivre
-leurs cultures, consulter des conseils saisonniers et recevoir des rappels —
-**entièrement hors-ligne**.
+Application mobile Flutter permettant à un petit exploitant agricole de suivre
+ses cultures parcelle par parcelle, de consulter des conseils adaptés à la
+saison en cours et de recevoir des rappels — **entièrement hors-ligne**.
 
-## ✨ Fonctionnalités
+> **Prérequis** : Flutter ≥ 3.27 (le thème utilise `Color.withValues` et
+> `CardThemeData`, disponibles à partir de cette version). Vérifiez votre
+> version avec `flutter --version`.
 
-- **Suivi des cultures** — fiche par culture/parcelle (type, date de semis, stade,
-  superficie, note libre, photo).
-- **Carnet d'activités** — arrosage, traitement, désherbage, récolte, avec date et remarque.
-- **Conseils saisonniers** — base de conseils pré-remplie, filtrée par saison et type de culture.
-- **Alertes et rappels** — notifications locales programmées (`flutter_local_notifications`).
-- **Tableau de bord** — cultures actives, prochaines alertes, conseils du moment.
+## Objectif
 
-## 🖼️ Design
+De nombreux petits exploitants gèrent encore leurs parcelles sur carnet
+papier ou de mémoire, ce qui entraîne des oublis (dates de traitement, de
+récolte) et une difficulté à suivre l'évolution des cultures d'une saison à
+l'autre. AgriSuivi répond à ce besoin avec une application simple, utilisable
+sans connexion internet, adaptée à un smartphone d'entrée ou moyenne gamme.
 
-Interface Material 3 moderne : thème vert agriculture, cartes arrondies,
-dégradés doux, typographie Inter/Poppins (`google_fonts`), gros boutons et
-icônes explicites pour un usage simple sur smartphone d'entrée de gamme.
+## Fonctionnalités principales
 
-## 🏗️ Architecture
+- 🌱 **Suivi des cultures** — fiche par culture/parcelle : type, date de
+  semis, stade de croissance, superficie, note libre et photo optionnelle.
+- 📗 **Carnet d'activités** — enregistrement des actions réalisées (arrosage,
+  traitement, désherbage, récolte) avec date et remarque.
+- 💡 **Conseils saisonniers** — base de conseils pré-remplie (~19 conseils),
+  filtrée automatiquement selon la saison en cours et le type de culture.
+- 🔔 **Alertes et rappels** — notifications locales programmées pour ne pas
+  manquer une étape importante (ex. « Traiter le maïs dans 3 jours »).
+- 📊 **Tableau de bord** — cultures actives, prochaines alertes et conseils du
+  moment, dès l'écran d'accueil.
+
+## Technologies et packages utilisés
+
+| Domaine | Choix | Package |
+|---|---|---|
+| Framework | Flutter / Dart | — |
+| Gestion d'état | Provider (ChangeNotifier) | `provider` |
+| Stockage | SQLite local, hors-ligne | `sqflite` (+ `sqflite_common_ffi` sur desktop) |
+| Notifications | Rappels locaux programmés | `flutter_local_notifications`, `timezone`, `flutter_timezone` |
+| Photos | Sélection d'image galerie | `image_picker` |
+| Typographie | Police moderne (Inter/Poppins) | `google_fonts` |
+| Icône d'app | Génération multi-résolutions | `flutter_launcher_icons` |
+
+**Choix de stockage** : local uniquement (sqflite), justifié par la
+connectivité internet irrégulière des utilisateurs cibles (zones rurales).
+Les conseils saisonniers sont embarqués localement dans une base pré-remplie
+à la première ouverture.
+
+## Architecture du projet
 
 ```
 lib/
-├── models/        # Culture, Activite, Alerte, ConseilSaisonnier
-├── services/       # DatabaseService (sqflite), NotificationService
-├── repositories/   # Requêtes sqflite isolées (Culture, Activity, Alert, Advice)
-├── providers/      # Gestion d'état (Provider / ChangeNotifier)
-├── screens/        # Écrans (accueil, cultures, détail, formulaires, conseils, paramètres)
-├── widgets/        # Composants réutilisables (cartes, empty states, stat tiles)
-├── theme/          # Thème visuel centralisé
-└── utils/          # Détermination de la saison en cours
+├── models/        # Classes métier : Culture, Activite, Alerte, ConseilSaisonnier
+├── services/      # DatabaseService (sqflite), NotificationService
+├── repositories/  # Requêtes sqflite isolées (Culture, Activity, Alert, Advice)
+├── providers/     # Gestion d'état (Provider / ChangeNotifier)
+├── screens/       # Écrans : accueil, cultures, détail, formulaires, conseils, paramètres
+├── widgets/       # Composants réutilisables (cartes, empty states, stat tiles)
+├── theme/         # Thème visuel centralisé (Material 3)
+└── utils/         # Détermination de la saison en cours
 ```
 
-## 📦 Stack technique
+## Installation
 
-| Domaine | Choix |
-|---|---|
-| Framework | Flutter / Dart |
-| Gestion d'état | Provider (ChangeNotifier) |
-| Stockage | sqflite (local, hors-ligne) |
-| Notifications | flutter_local_notifications + timezone |
-| Photos | image_picker |
-| Police | google_fonts (Inter / Poppins) |
-
-## 🚀 Installation
-
-Ce dossier contient le **code source Dart** du projet (`lib/`, `pubspec.yaml`,
-`test/`). Comme il ne contient pas encore les projets natifs (Android/iOS/
-Windows/macOS/Linux), générez-les d'abord avec Flutter avant de lancer
-l'application.
-
-### Sur desktop (Windows / macOS / Linux)
-
-Le stockage local utilise `sqflite`, qui n'a pas d'implémentation native sur
-desktop : le projet bascule donc automatiquement sur `sqflite_common_ffi`
-lorsqu'il détecte Windows, macOS ou Linux (voir `DatabaseService`). Rien à
-configurer côté code, mais il faut activer la plateforme desktop dans Flutter :
-
-```bash
-# 1. Activez la plateforme souhaitée (une seule fois par machine)
-flutter config --enable-windows-desktop   # ou --enable-macos-desktop / --enable-linux-desktop
-
-# 2. Depuis le dossier agrisuivi/, générez les projets natifs
-flutter create . --project-name agrisuivi --platforms=windows,macos,linux
-
-# 3. Installez les dépendances
-flutter pub get
-
-# 4. Lancez l'application
-flutter run -d windows   # ou -d macos / -d linux
-```
+Ce dépôt contient le **code source Dart** du projet (`lib/`, `pubspec.yaml`,
+`test/`). Les projets natifs (Android/iOS/Windows/macOS/Linux) ne sont pas
+versionnés (voir `.gitignore`) : ils doivent être générés localement.
 
 ### Sur mobile (Android / iOS)
 
 ```bash
+git clone https://github.com/Valentindjidonou/agrisuivi.git
+cd agrisuivi
 flutter create . --project-name agrisuivi --platforms=android,ios
 flutter pub get
 flutter run
 ```
 
-> Aucune configuration réseau ou clé API n'est nécessaire : toutes les données
-> restent stockées localement sur l'appareil.
+### Sur desktop (Windows / macOS / Linux)
 
-> ⚠️ **Flutter Web n'est pas supporté par ce projet** : `sqflite` n'a pas
-> d'équivalent web viable pour cette architecture ; l'application est conçue
-> pour desktop et mobile.
+Le plugin `sqflite` n'a pas d'implémentation native sur desktop : le projet
+bascule automatiquement sur `sqflite_common_ffi` lorsqu'il détecte Windows,
+macOS ou Linux (voir `DatabaseService`). Il faut simplement activer la
+plateforme :
+
+```bash
+flutter config --enable-linux-desktop   # ou --enable-windows-desktop / --enable-macos-desktop
+flutter create . --project-name agrisuivi --platforms=linux
+flutter pub get
+flutter run -d linux
+```
+
+> Aucune configuration réseau ni clé API n'est nécessaire : toutes les
+> données restent stockées localement sur l'appareil. **Flutter Web n'est
+> pas supporté** par ce projet (sqflite n'a pas d'équivalent web viable pour
+> cette architecture).
 
 ### Permission de notifications (Android 13+)
 
-Après `flutter create .`, ajoutez cette ligne dans
-`android/app/src/main/AndroidManifest.xml` (au même niveau que les autres
-`<uses-permission>`, si elle n'y figure pas déjà) :
+Après `flutter create .`, ajouter dans
+`android/app/src/main/AndroidManifest.xml` :
 
 ```xml
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -105,35 +107,93 @@ Après `flutter create .`, ajoutez cette ligne dans
 
 ### Générer l'icône de l'application
 
-Placez une image carrée (1024×1024) dans `assets/icon/app_icon.png`, puis :
+Une icône (`assets/icon/app_icon.png`, thème vert/feuille) est déjà fournie.
+Pour l'appliquer au projet Android :
 
 ```bash
 flutter pub run flutter_launcher_icons
 ```
 
-## 🧪 Tests
+### Générer l'APK installable
+
+```bash
+flutter build apk --release
+# fichier généré dans build/app/outputs/flutter-apk/app-release.apk
+```
+
+## Lancement de l'application
+
+```bash
+flutter run
+```
+
+L'application s'ouvre directement sur le tableau de bord. Aucune
+authentification n'est requise (un seul utilisateur par installation, voir
+« Limites assumées » plus bas).
+
+## Tests réalisés
 
 ```bash
 flutter test
 ```
 
-- **Test unitaire** — `CultureRepository` : ajout puis lecture d'une culture en base.
-- **Test de widget** — validation des champs obligatoires du formulaire de culture.
+| Type de test | Fichier | Ce qui est vérifié |
+|---|---|---|
+| Test unitaire | `test/culture_repository_test.dart` | Ajout puis lecture d'une culture en base (CRUD de base du `CultureRepository`) |
+| Test de widget | `test/culture_form_widget_test.dart` | Le formulaire d'ajout de culture affiche bien les erreurs de validation sur les champs obligatoires |
+| Test d'intégration | `test/integration_flow_test.dart` | Parcours complet : ajouter une culture → la retrouver dans la liste des cultures → ouvrir son détail et vérifier ses informations |
 
-## 📱 Écrans principaux
+Les trois tests utilisent `sqflite_common_ffi` pour s'exécuter sans appareil
+ni émulateur (utile en CI ou sur desktop).
 
-1. Accueil (tableau de bord)
-2. Liste des cultures
-3. Détail culture (onglets Activités / Alertes)
-4. Formulaire culture (ajout / modification)
-5. Formulaire activité
-6. Formulaire alerte
-7. Conseils saisonniers
-8. Paramètres
+**Débogage effectué pendant le développement** :
+- Observation des rebuilds de la liste des cultures avec Flutter DevTools.
+- Correction d'un bug où une erreur d'enregistrement laissait le formulaire
+  bloqué en chargement indéfiniment (voir « Difficultés rencontrées »).
+- Vérification que `sqflite` ne fonctionne pas nativement sur desktop, d'où
+  le basculement conditionnel vers `sqflite_common_ffi`.
 
-## 🔒 Limites assumées (v1)
+## Captures d'écran
 
-- Un seul utilisateur par installation, pas de compte ni de synchronisation multi-appareils.
-- Pas de carte géographique (localisation des parcelles par simple étiquette texte).
-- Les conseils saisonniers sont embarqués localement ; une synchronisation distante
-  (Firebase) pourrait être envisagée comme évolution future.
+*(à compléter avant la remise finale — captures des écrans Accueil, Liste
+des cultures, Détail d'une culture, Formulaire d'ajout, Conseils saisonniers)*
+
+| Accueil | Cultures | Détail culture |
+|---|---|---|
+| _capture à ajouter_ | _capture à ajouter_ | _capture à ajouter_ |
+
+## Difficultés rencontrées
+
+- **Formulaires bloqués en cas d'erreur** : les premières versions des
+  formulaires (culture, activité, alerte) ne géraient pas les exceptions
+  lors de l'enregistrement en base. En cas d'échec, l'indicateur de
+  chargement restait actif indéfiniment et l'écran semblait figé. Corrigé en
+  encadrant chaque enregistrement d'un `try/catch/finally` avec message
+  d'erreur explicite (`SnackBar`).
+- **Notification bloquant l'enregistrement d'une alerte** : la programmation
+  de la notification locale se faisait avant l'écriture en base ; un refus
+  de permission empêchait donc l'alerte d'être sauvegardée. Corrigé en
+  découplant les deux opérations : l'alerte est toujours enregistrée, la
+  notification est programmée en best-effort.
+- **`sqflite` non supporté sur desktop** : le plugin `sqflite` n'a pas
+  d'implémentation native pour Windows/macOS/Linux, ce qui empêchait tout
+  enregistrement lors des tests sur poste de développement Linux. Résolu en
+  basculant automatiquement vers `sqflite_common_ffi` selon la plateforme
+  détectée au runtime.
+- **Fuseau horaire des rappels** : par défaut, la librairie `timezone`
+  utilise UTC. Ajout de `flutter_timezone` pour récupérer le fuseau horaire
+  réel de l'appareil et programmer les rappels à l'heure locale attendue.
+
+## Limites assumées (v1)
+
+- Un seul utilisateur par installation : pas de compte ni de synchronisation
+  multi-appareils.
+- Pas de carte géographique (localisation des parcelles par simple étiquette
+  texte).
+- Les conseils saisonniers sont embarqués localement ; une synchronisation
+  distante (Firebase) pourrait être envisagée comme évolution future.
+
+## Auteur
+
+**Valentin Djidonou** — Projet individuel réalisé dans le cadre du cours
+*Développement Mobile* (Semaine 5 : conception — Semaine 6 : réalisation).
